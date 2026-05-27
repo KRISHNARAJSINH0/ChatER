@@ -1,0 +1,943 @@
+/* CYBER-ETHEREAL GLASS DESIGN SYSTEM */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+:root {
+    --bg-dark: #06070d;
+    --panel-glass: rgba(13, 15, 24, 0.65);
+    --panel-border: rgba(255, 255, 255, 0.08);
+    --panel-border-glow: rgba(255, 255, 255, 0.15);
+    
+    --primary: #6366f1;
+    --primary-glow: rgba(99, 102, 241, 0.35);
+    --secondary: #a855f7;
+    --secondary-glow: rgba(168, 85, 247, 0.35);
+    
+    --cyan-neon: #22d3ee;
+    --cyan-neon-glow: rgba(34, 211, 238, 0.4);
+    
+    --bubble-sender: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+    --bubble-receiver: rgba(255, 255, 255, 0.05);
+    
+    --text-main: #f8fafc;
+    --text-muted: rgba(248, 250, 252, 0.55);
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Ambient glow nodes in dashboard background */
+body::before {
+    content: '';
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(99, 102, 241, 0) 70%);
+    top: 5%;
+    left: 10%;
+    border-radius: 50%;
+    z-index: 0;
+    filter: blur(90px);
+    animation: dashboardBlob1 25s infinite alternate ease-in-out;
+    pointer-events: none;
+}
+
+body::after {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(168, 85, 247, 0) 70%);
+    bottom: 5%;
+    right: 10%;
+    border-radius: 50%;
+    z-index: 0;
+    filter: blur(100px);
+    animation: dashboardBlob2 30s infinite alternate ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes dashboardBlob1 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(80px, -40px) scale(1.15); }
+}
+
+@keyframes dashboardBlob2 {
+    0% { transform: translate(0, 0) scale(1.15); }
+    100% { transform: translate(-80px, 40px) scale(0.9); }
+}
+
+/* SLEEK CUSTOM SCROLLBARS */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(15, 17, 28, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-glow);
+}
+
+/* MAIN LAYOUT */
+.main-container,
+.chat-layout {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    z-index: 1;
+    position: relative;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 30%;
+    min-width: 320px;
+    background: var(--panel-glass);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border-right: 1px solid var(--panel-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+}
+
+/* PROFILE HEADER IN SIDEBAR */
+.profile-section {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--panel-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.profile-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, #ffffff 40%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.profile-section a {
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--panel-border);
+    color: #e2e8f0;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+}
+
+.profile-section a:hover {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #a5b4fc;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+    transform: translateY(-1px);
+}
+
+/* SEARCH BOX */
+.search-box {
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.search-box input {
+    width: 100%;
+    padding: 12px 18px;
+    border: 1px solid var(--panel-border);
+    outline: none;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-main);
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-box input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.search-box input:focus {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+/* USER LIST */
+.user-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+}
+
+.user-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 20px;
+    text-decoration: none;
+    color: var(--text-main);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 16px;
+    margin: 4px 12px;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.user-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.04);
+    transform: translateY(-2px) translateX(3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* SIDEBAR PROFILE IMAGE */
+.profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    overflow: hidden;
+    border: 2px solid rgba(99, 102, 241, 0.5);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.user-card:hover .profile-image {
+    border-color: var(--secondary);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+    transform: scale(1.05);
+}
+
+/* AVATAR DUMMY CONTAINER */
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+}
+
+.chat-info {
+    flex: 1;
+    min-width: 0; /* Enable text truncation */
+}
+
+.chat-info h3.username {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-info p {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-time {
+    font-size: 11px;
+    color: rgba(248, 250, 252, 0.45);
+    flex-shrink: 0;
+    margin-left: 5px;
+}
+
+/* ONLINE PULSING RIPPLE BADGE */
+.online-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--cyan-neon) !important;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+}
+
+.online-dot::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    background: var(--cyan-neon);
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px var(--cyan-neon);
+    animation: pulseOnline 1.6s infinite;
+}
+
+@keyframes pulseOnline {
+    0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(34, 211, 238, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
+}
+
+/* OFFLINE / ONLINE HEADER STATUS */
+.online-status {
+    color: var(--cyan-neon) !important;
+    font-size: 13px;
+}
+
+.offline-status {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* DYNAMIC CHAT PLACEHOLDER */
+.chat-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(10, 11, 16, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 30px;
+    text-align: center;
+}
+
+.chat-placeholder::before {
+    content: '💬';
+    font-size: 80px;
+    margin-bottom: 25px;
+    filter: drop-shadow(0 0 25px var(--primary-glow));
+    animation: placeholderFloat 4s infinite alternate ease-in-out;
+}
+
+@keyframes placeholderFloat {
+    0% { transform: translateY(0) rotate(-3deg); }
+    100% { transform: translateY(-12px) rotate(3deg); }
+}
+
+.chat-placeholder h1 {
+    background: linear-gradient(135deg, #ffffff 30%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.15));
+}
+
+.chat-placeholder p {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 320px;
+    line-height: 1.5;
+}
+
+/* CORE CHAT WRAPPER */
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(10, 11, 16, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.chat-container-full {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: rgba(10, 11, 16, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* CHAT HEADER */
+.chat-header {
+    padding: 14px 20px !important;
+    background: rgba(13, 15, 24, 0.5) !important;
+    border-bottom: 1px solid var(--panel-border) !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    z-index: 10 !important;
+    flex-wrap: nowrap !important; /* Never let header items wrap to multiple lines */
+}
+
+.chat-header h2 {
+    font-size: 17px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.3px !important;
+    color: #ffffff !important;
+    line-height: 1.2 !important;
+}
+
+.back-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 6px 14px !important; /* Adaptive padding to fit '← Back' inside cleanly */
+    border-radius: 16px !important; /* Breathtaking pill curvature */
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid var(--panel-border) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    flex-shrink: 0 !important; /* Guarantee that the back button is NEVER squeezed or compressed */
+    margin: 0 !important;
+    position: relative !important;
+    gap: 6px !important; /* Spacing between arrow and text */
+    width: auto !important;
+    height: auto !important;
+}
+
+.back-button:hover {
+    background: rgba(99, 102, 241, 0.2) !important;
+    border-color: rgba(99, 102, 241, 0.4) !important;
+    color: #a5b4fc !important;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3) !important;
+    transform: translateY(-1px) scale(1.02) !important;
+}
+
+/* Guarantee that any profile image or avatar inside the header doesn't shrink or squeeze */
+.chat-header .profile-image,
+.chat-header .avatar,
+.chat-header img {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    flex-shrink: 0 !important;
+    border: 2px solid var(--primary) !important;
+    margin: 0 !important;
+    display: inline-block !important;
+}
+
+.chat-header div {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-width: 0 !important; /* Allow the content block to shrink safely */
+    flex: 1 !important;
+}
+
+/* TYPING INDICATOR */
+.typing-status {
+    color: var(--cyan-neon) !important;
+    font-size: 12px;
+    font-weight: 500;
+    height: 16px;
+    font-style: italic;
+    margin-top: 2px;
+    animation: typingBlink 1.4s infinite;
+}
+
+@keyframes typingBlink {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* MESSAGES CONTAINER */
+.message-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 30px;
+    scroll-behavior: auto !important; /* Instant snap to bottom, matching Discord/Telegram. No slow gliding animations. */
+    display: flex;
+    flex-direction: column;
+}
+
+.empty-chat {
+    text-align: center;
+    margin: auto;
+    color: var(--text-muted);
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 20px 40px;
+    border-radius: 20px;
+    border: 1px solid var(--panel-border);
+    max-width: 250px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* ASYMMETRIC CHAT BUBBLES */
+.message-left {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+.message-right {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.message-bubble {
+    padding: 14px 18px;
+    max-width: 60%;
+    word-wrap: break-word;
+    font-size: 15px;
+    line-height: 1.5;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform;
+}
+
+.message-bubble:hover {
+    transform: translateY(-2px) scale(1.01);
+}
+
+/* SENDER (RIGHT) */
+.sender {
+    background: var(--bubble-sender);
+    background-size: 200% auto;
+    color: #ffffff;
+    border-radius: 20px 20px 4px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    animation: gradientFlow 5s ease infinite;
+}
+
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* RECEIVER (LEFT) */
+.receiver {
+    background: var(--bubble-receiver);
+    color: #f1f5f9;
+    border-radius: 20px 20px 20px 4px;
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* MESSAGE DETAILS */
+.message-time {
+    font-size: 10px;
+    margin-top: 6px;
+    opacity: 0.65;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.sender .message-time {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.receiver .message-time {
+    color: rgba(248, 250, 252, 0.5);
+}
+
+/* DOUBLE TICKS GLOW */
+.message-time span {
+    color: var(--cyan-neon) !important;
+    font-weight: bold;
+    text-shadow: 0 0 6px var(--cyan-neon-glow);
+    display: inline-block;
+    margin-left: 2px;
+}
+
+/* INTERACTIVE TAG DELETE BUTTON */
+.delete-btn {
+    position: absolute;
+    top: -24px;
+    right: 8px;
+    background: rgba(239, 68, 68, 0.95);
+    color: #ffffff !important;
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-decoration: none !important;
+    opacity: 0;
+    transform: translateY(5px);
+    visibility: hidden; /* Use visibility instead of pointer-events to support animatable delays */
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+    z-index: 10;
+    
+    /* CSS Delay Hack: keeps the button visible and clickable for 4 seconds after hover/tap ends so user can tap it */
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s ease;
+    transition-delay: 4s; 
+}
+
+/* Hover over bubble (desktop), Tap & Hold / Active click on bubble (mobile/desktop), or Focus */
+.message-bubble:hover .delete-btn,
+.message-bubble:active .delete-btn,
+.delete-btn:focus,
+.delete-btn:hover {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    visibility: visible !important; /* Immediately interactive */
+    transition-delay: 0s !important; /* Show instantly upon interaction */
+}
+
+.delete-btn:hover {
+    background: #ef4444 !important;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6) !important;
+    transform: translateY(-1px) scale(1.05) !important;
+    transition-delay: 0s !important;
+}
+
+/* BOTTOM FORM CONTAINER */
+.message-form {
+    display: flex;
+    gap: 12px;
+    padding: 24px;
+    background: rgba(13, 15, 24, 0.5);
+    border-top: 1px solid var(--panel-border);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    align-items: center;
+}
+
+.message-form input {
+    flex: 1;
+    padding: 15px 24px;
+    border: 1px solid var(--panel-border);
+    outline: none;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-main);
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.message-form input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.message-form input:focus {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary);
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.25);
+}
+
+.message-form button {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.message-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(168, 85, 247, 0.45);
+    background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+}
+
+.message-form button:active {
+    transform: translateY(1px);
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+}
+
+/* PROFILE PAGE WRAPPER */
+.profile-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(10, 11, 16, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.profile-card {
+    width: 440px;
+    background: var(--panel-glass);
+    border: 1px solid var(--panel-border);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    padding: 40px 35px;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Defensive: If a back button is placed inside the profile card, position relatively to completely prevent overlap */
+.profile-card .back-button {
+    align-self: flex-start !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin-bottom: 20px !important;
+    z-index: 10 !important;
+}
+
+/* Guarantee that any profile image or avatar inside the header doesn't shrink or squeeze */
+.chat-header .profile-image,
+.chat-header .avatar {
+    flex-shrink: 0 !important;
+}
+
+.chat-header div {
+    min-width: 0; /* Let inner content shrink and truncate safely rather than pushing elements out of layout */
+}
+
+.profile-card h1 {
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 26px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 10px rgba(99, 102, 241, 0.2));
+}
+
+.profile-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.profile-card input {
+    padding: 15px 18px;
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.profile-card input:focus {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+.profile-card button {
+    padding: 15px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
+}
+
+.profile-card button:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(168, 85, 247, 0.45);
+}
+
+.profile-card button:active {
+    transform: translateY(1px);
+}
+
+/* FILE UPLOAD INPUT IN PROFILE */
+.file-input {
+    background: rgba(255, 255, 255, 0.02) !important;
+    padding: 12px !important;
+    border-radius: 12px;
+    color: var(--text-muted) !important;
+    font-size: 13px !important;
+    cursor: pointer;
+}
+
+.upload-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: -4px;
+    padding-left: 2px;
+}
+
+/* SCI-FI PROFILE PREVIEW SCANNER RINGS */
+.image-section {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.profile-preview {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+}
+
+/* Orbit Dashed Rings using pseudo elements */
+.image-section::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    width: 152px;
+    height: 152px;
+    border-radius: 50%;
+    border: 2px dashed rgba(99, 102, 241, 0.3);
+    animation: spinClockwise 15s linear infinite;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.image-section::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 2px dashed rgba(168, 85, 247, 0.3);
+    animation: spinCounterClockwise 20s linear infinite;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.image-section:hover::before {
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    width: 154px;
+    height: 154px;
+    top: -7px;
+}
+
+.image-section:hover::after {
+    border-color: var(--secondary);
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
+    width: 164px;
+    height: 164px;
+    top: -12px;
+}
+
+.image-section:hover .profile-preview {
+    border-color: #ffffff;
+    transform: scale(1.03);
+    box-shadow: 0 0 35px rgba(99, 102, 241, 0.3);
+}
+
+@keyframes spinClockwise {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spinCounterClockwise {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* RESPONSIVE FLUID MEDIA QUERIES */
+@media(max-width: 992px){
+    .sidebar {
+        width: 35%;
+        min-width: 280px;
+    }
+}
+
+@media(max-width: 768px){
+    .sidebar {
+        width: 40%;
+    }
+}
+
+@media(max-width: 600px){
+    /* On mobile, show the sidebar user list at 100% width on the homepage */
+    .main-container .sidebar {
+        display: flex;
+        width: 100%;
+        min-width: 100%;
+        border-right: none;
+    }
+    
+    /* On mobile, hide the welcome placeholder so the user list is immediately visible */
+    .main-container .chat-placeholder {
+        display: none !important;
+    }
+    
+    .message-bubble {
+        max-width: 80%;
+    }
+    
+    .chat-header h2 {
+        font-size: 16px;
+    }
+    
+    .profile-card {
+        width: 100%;
+        max-width: 400px;
+        padding: 30px 20px;
+    }
+
+    /* On mobile/touch screens, let the delete button be hidden by default and show on tap/hold */
+    .delete-btn {
+        opacity: 0 !important;
+        transform: translateY(5px) !important;
+        visibility: hidden !important;
+        top: -22px !important;
+        right: 6px !important;
+    }
+    
+    /* Add vertical margin between bubbles on mobile to fit the floating delete tags comfortably */
+    .message-left, .message-right {
+        margin-top: 14px !important;
+        margin-bottom: 14px !important;
+    }
+}

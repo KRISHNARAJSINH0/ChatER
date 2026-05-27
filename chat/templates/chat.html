@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="chat-container-full">
+    <!-- HEADER -->
+    <div class="chat-header">
+      <a href="/home/" class="back-button">← Back</a>
+
+      <div>
+        <h2>{{ receiver.username }}</h2>
+
+        {% if receiver.profile.is_online %}
+
+    <p class="online-status">● Online</p>
+    <p id="typing-status" class="typing-status"></p>
+
+{% else %}
+
+    <p class="offline-status">
+
+        Last seen
+        {{ receiver.profile.last_seen|time:"h:i A" }}
+
+    </p>
+
+{% endif %}
+
+      </div>
+    </div>
+
+    <!-- CHAT AREA -->
+    <div class="message-container" id="message-container">
+      {% if not messages %}
+        <div class="empty-chat">Start chatting 🚀</div>
+      {% endif %}
+
+      {% for message in messages %}
+        {% if message.sender == request.user %}
+          <div class="message-right">
+            <div class="message-bubble sender">
+              {% if message.is_deleted %}
+
+    <i>
+
+        Message deleted
+
+    </i>
+
+{% else %}
+
+    {{ message.message }}
+
+{% endif %} 
+
+              <div class="message-time">
+
+    {{ message.timestamp|time:"h:i A" }}
+
+    {% if message.sender == request.user %}
+
+        {% if message.is_seen %}
+
+            ✓✓
+
+        {% else %}
+
+            ✓
+
+        {% endif %}
+
+    {% endif %}
+
+</div>
+              {% if message.sender == request.user and not message.is_deleted %}
+
+    <a href="/delete-message/{{ message.id }}/"
+       class="delete-btn">
+
+        Delete
+
+    </a>
+
+{% endif %}
+            </div>
+          </div>
+        {% else %}
+          <div class="message-left">
+            <div class="message-bubble receiver">
+              {% if message.is_deleted %}
+
+    <i>
+
+        Message deleted
+
+    </i>
+
+{% else %}
+
+    {{ message.message }}
+
+{% endif %}
+
+              <div class="message-time">
+
+    {{ message.timestamp|time:"h:i A" }}
+
+    {% if message.sender == request.user %}
+
+        {% if message.is_seen %}
+
+            ✓✓
+
+        {% else %}
+
+            ✓
+
+        {% endif %}
+
+    {% endif %}
+
+</div>
+              {% if message.sender == request.user and not message.is_deleted %}
+
+    <a href="/delete-message/{{ message.id }}/"
+       class="delete-btn">
+
+        Delete
+
+    </a>
+
+{% endif %}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- INPUT -->
+    <form method="POST" class="message-form">
+      {% csrf_token %}
+
+      <input type="text" name="message" id="message-input" placeholder="Type message..." required />
+
+      <button type="submit">Send</button>
+    </form>
+  </div>
+  <script src="{% static 'js/chat.js' %}"></script>
+{% endblock %}

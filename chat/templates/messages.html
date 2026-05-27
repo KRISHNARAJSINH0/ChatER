@@ -1,0 +1,75 @@
+{% for message in messages %}
+
+    {% if message.sender == request.user %}
+
+        <div class="message-right">
+
+            <div class="message-bubble sender">
+
+                {% if message.is_deleted %}
+
+                    <i>
+
+                        Message deleted
+
+                    </i>
+
+                {% else %}
+
+                    {{ message.message }}
+
+                {% endif %}
+
+                <div class="message-time">
+
+                    {{ message.timestamp|time:"h:i A" }}
+
+                    {% if message.is_seen %}
+
+                        ✓✓
+
+                    {% else %}
+
+                        ✓
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <div class="message-left">
+
+            <div class="message-bubble receiver">
+
+                {% if message.is_deleted %}
+
+                    <i>
+
+                        Message deleted
+
+                    </i>
+
+                {% else %}
+
+                    {{ message.message }}
+
+                {% endif %}
+
+                <div class="message-time">
+
+                    {{ message.timestamp|time:"h:i A" }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+{% endfor %}

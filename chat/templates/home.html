@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+
+<div class="main-container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+        <!-- PROFILE -->
+        <div class="profile-section">
+
+            <h2>{{ request.user.username }}</h2>
+            <a href="/profile/"
+   class="profile-btn">
+
+    Profile
+
+</a>
+            <a href="/logout/">
+
+                Logout
+
+            </a>
+
+        </div>
+
+        <!-- SEARCH -->
+        <div class="search-box">
+
+            <input type="text"
+                   id="searchInput"
+                   placeholder="Search User">
+
+        </div>
+
+        <!-- USER LIST -->
+        <div class="user-list"
+             id="userList">
+
+            {% for item in user_data %}
+
+                <a href="/chat/{{ item.user.id }}/"
+                   class="user-card">
+
+                    <!-- AVATAR -->
+                    <div class="avatar">
+
+                       <img src="{{ item.user.profile.image.url }}"
+     class="profile-image">
+
+                    </div>
+
+                    <!-- CHAT INFO -->
+                    <div class="chat-info">
+
+                        <h3 class="username">
+
+                            {{ item.user.username }}
+
+                        </h3>
+                        {% if item.user.profile.is_online %}
+
+                        <span class="online-dot">
+
+                                 ● Online
+
+                         </span>
+
+                        {% endif %}
+
+                        {% if item.last_message %}
+
+                            <p>
+
+                                {{ item.last_message.message|truncatechars:25 }}
+
+                            </p>
+
+                        {% else %}
+
+                            <p>
+
+                                Start chatting
+
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                    <!-- TIME -->
+                    {% if item.last_message %}
+
+                        <div class="chat-time">
+
+                            {{ item.last_message.timestamp|time:"h:i A" }}
+
+                        </div>
+
+                    {% endif %}
+
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="chat-placeholder">
+
+        <h1>
+
+            Welcome {{ request.user.username }}
+
+        </h1>
+
+        <p>
+
+            Select a user to start chatting
+
+        </p>
+
+    </div>
+
+</div>
+
+<!-- HOME JS -->
+<script src="{% static 'js/home.js' %}"></script>
+
+{% endblock %}

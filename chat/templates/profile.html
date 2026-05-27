@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="profile-container">
+
+    <div class="profile-card">
+
+        <h1>Edit Profile</h1>
+
+        <form method="POST"
+              enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="image-section">
+
+                <img src="{{ request.user.profile.image.url }}"
+                     class="profile-preview">
+
+            </div>
+            <label class="upload-label">Upload Profile Image</label>
+            <input type="file"
+                   name="image"
+                   class="file-input">
+
+            <input type="text"
+                   name="username"
+                   value="{{ request.user.username }}"
+                   placeholder="Username">
+
+            <input type="text"
+                   name="first_name"
+                   value="{{ request.user.first_name }}"
+                   placeholder="First Name">
+
+            <input type="text"
+                   name="last_name"
+                   value="{{ request.user.last_name }}"
+                   placeholder="Last Name">
+
+            <input type="email"
+                   name="email"
+                   value="{{ request.user.email }}"
+                   placeholder="Email">
+
+            <button type="submit">
+
+                Save Changes
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
