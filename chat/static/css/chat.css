@@ -955,16 +955,28 @@ body::after {
     html, body {
         width: 100% !important;
         max-width: 100% !important;
-        overflow-x: hidden !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
     }
 
-    .main-container,
-    .chat-container-full {
+    .main-container {
         width: 100% !important;
         max-width: 100% !important;
+        height: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
         overflow-x: hidden !important;
+    }
+
+    .chat-container-full {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
     }
 
     /* On mobile, show the sidebar user list at 100% width on the homepage */
@@ -988,7 +1000,7 @@ body::after {
     
     /* Compact message form on mobile to save screen real estate */
     .message-form {
-        padding: 12px 14px calc(12px + env(safe-area-inset-bottom)) !important;
+        padding: 12px 14px calc(16px + env(safe-area-inset-bottom)) !important;
         gap: 8px !important;
         background: rgba(13, 15, 24, 0.8) !important;
     }
@@ -1001,6 +1013,7 @@ body::after {
         padding: 10px 16px !important;
         font-size: 13px !important;
         border-radius: 16px !important;
+        min-width: 0 !important; /* Critical: allows dynamic compression on small devices */
     }
     
     .message-form button {
@@ -1012,10 +1025,10 @@ body::after {
     }
 
     .profile-container {
-        height: auto !important;
-        min-height: 100dvh !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
         padding: 20px 10px !important;
-        overflow-y: auto !important;
+        overflow-y: auto !important; /* Force internal container scrolling */
         display: flex !important;
         align-items: flex-start !important;
     }
