@@ -308,9 +308,56 @@ def get_messages(request, id):
 @login_required
 def search_users(request):
     query = request.GET.get('q', '').strip()
-    if not query:
-        return JsonResponse({'users': []})
     
+    # 1. If query is empty, fetch all active conversations dynamically from database!
+    if not query:
+        users = User.objects.exclude(id=request.user.id)
+        active_users = []
+        for u in users:
+            last_message = Message.objects.filter(
+                sender=request.user, receiver=u
+            ) | Message.objects.filter(
+                sender=u, receiver=request.user
+            )
+            last_message = last_message.order_by('-timestamp').first()
+            if last_message:
+                active_users.append({
+                    'user': u,
+                    'last_message': last_message
+                })
+        
+        # Sort by most recent message
+        active_users = sorted(
+            active_users,
+            key=lambda x: x['last_message'].timestamp,
+            reverse=True
+        )
+        
+        results = []
+        for item in active_users:
+            u = item['user']
+            last_msg = item['last_message']
+            has_custom_image = u.profile.image and u.profile.image.name != 'profile/default.png' and u.profile.image.name != 'default.png'
+            img_url = u.profile.image.url if has_custom_image else None
+            
+            # Truncate preview
+            preview = last_msg.message
+            if len(preview) > 25:
+                preview = preview[:22] + "..."
+                
+            is_unread = not last_msg.is_seen and last_msg.sender != request.user
+            
+            results.append({
+                'id': u.id,
+                'username': u.username,
+                'img_url': img_url,
+                'first_letter': u.username[0].upper() if u.username else '',
+                'preview': preview,
+                'is_unread': is_unread
+            })
+        return JsonResponse({'users': results})
+        
+    # 2. If query has text, perform database search
     matching_users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)[:10]
     
     results = []
@@ -322,7 +369,9 @@ def search_users(request):
             'id': u.id,
             'username': u.username,
             'img_url': img_url,
-            'first_letter': u.username[0].upper() if u.username else ''
+            'first_letter': u.username[0].upper() if u.username else '',
+            'preview': 'Click to start chatting',
+            'is_unread': False
         })
         
     return JsonResponse({'users': results})

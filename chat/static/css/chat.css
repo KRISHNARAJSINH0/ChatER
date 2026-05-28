@@ -502,7 +502,7 @@ body::after {
     display: inline-block !important;
 }
 
-.chat-header div {
+.chat-header div:not(.avatar-fallback) {
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
