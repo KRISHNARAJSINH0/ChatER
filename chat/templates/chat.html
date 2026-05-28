@@ -7,7 +7,11 @@
     <div class="chat-header">
       <a href="/home/" class="back-button">← Back</a>
       
-      <img src="{{ receiver.profile.image.url }}" class="profile-image" alt="{{ receiver.username }}">
+      {% if receiver.profile.image and receiver.profile.image.name != 'profile/default.png' and receiver.profile.image.name != 'default.png' %}
+        <img src="{{ receiver.profile.image.url }}" class="profile-image" alt="{{ receiver.username }}">
+      {% else %}
+        <div class="avatar-fallback">{{ receiver.username|slice:":1"|upper }}</div>
+      {% endif %}
 
       <div>
         <h2>{{ receiver.username }}</h2>

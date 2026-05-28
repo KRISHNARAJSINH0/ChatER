@@ -31,10 +31,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         data = json.loads(text_data)
 
-        message = data['message']
-
-        sender = data['sender']
+        msg_type = data.get('type')
+        sender = data.get('sender')
         receiver = data.get('receiver')
+
+        # Handle Real-Time Read Receipts
+        if msg_type == 'seen_receipt':
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_seen_receipt',
+                    'sender': sender
+                }
+            )
+            # Silently update database in background
+            await self.mark_messages_seen(sender, receiver)
+            return
+
+        message = data['message']
         sender_id = data.get('sender_id')
 
         # Send message to active chat room group
@@ -79,6 +93,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender': event['sender']
 
         }))
+
+    async def chat_seen_receipt(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'seen_receipt',
+            'sender': event['sender']
+        }))
+
+    from channels.db import database_sync_to_async
+    @database_sync_to_async
+    def mark_messages_seen(self, sender_username, receiver_username):
+        from django.contrib.auth.models import User
+        from .models import Message
+        try:
+            sender = User.objects.get(username=sender_username)
+            receiver = User.objects.get(username=receiver_username)
+            # All messages sent by receiver (which is now seen by sender) are marked True
+            Message.objects.filter(sender=receiver, receiver=sender, is_seen=False).update(is_seen=True)
+        except Exception as e:
+            print("Error marking messages as seen: ", e)
 
 
 class NotificationConsumer(AsyncWebsocketConsumer):

@@ -49,13 +49,12 @@ Home
                 <a href="/chat/{{ item.user.id }}/"
                    class="user-card">
 
-                    <!-- AVATAR -->
-                    <div class="avatar">
-
-                       <img src="{{ item.user.profile.image.url }}"
-     class="profile-image">
-
-                    </div>
+                    <!-- AVATAR / PROFILE PIC -->
+                    {% if item.user.profile.image and item.user.profile.image.name != 'profile/default.png' and item.user.profile.image.name != 'default.png' %}
+                        <img src="{{ item.user.profile.image.url }}" class="profile-image" alt="{{ item.user.username }}">
+                    {% else %}
+                        <div class="avatar-fallback">{{ item.user.username|slice:":1"|upper }}</div>
+                    {% endif %}
 
                     <!-- CHAT INFO -->
                     <div class="chat-info">

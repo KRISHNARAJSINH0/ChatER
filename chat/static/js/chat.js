@@ -20,14 +20,25 @@ function connectWebSocket() {
 
     chatSocket.onopen = function() {
         console.log("WebSocket connection established successfully!");
+        sendSeenReceipt();
     };
 
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
+        
+        if (data.type === 'seen_receipt') {
+            updateDoubleTicks();
+            return;
+        }
+
         const messageText = data.message;
         const senderName = data.sender;
         
         appendMessageBubble(messageText, senderName);
+
+        if (senderName !== senderUsername) {
+            sendSeenReceipt();
+        }
     };
 
     chatSocket.onclose = function(e) {
@@ -143,5 +154,26 @@ if (input && typingStatus) {
         window.typingTimer = setTimeout(() => {
             typingStatus.innerHTML = '';
         }, 1500);
+    });
+}
+
+// REAL-TIME SEEN RECEIPTS HELPERS
+function sendSeenReceipt() {
+    if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+        chatSocket.send(JSON.stringify({
+            'type': 'seen_receipt',
+            'sender': senderUsername,
+            'receiver': receiverUsername
+        }));
+    }
+}
+
+function updateDoubleTicks() {
+    const ticksElements = document.querySelectorAll('.message-bubble.sender .message-time');
+    ticksElements.forEach(el => {
+        if (el.innerHTML.includes('✓') && !el.innerHTML.includes('✓✓')) {
+            // Replace single tick with dynamic neon double checkmark
+            el.innerHTML = el.innerHTML.replace(/✓/g, '<span style="color: #22d3ee; margin-left: 2px;">✓✓</span>');
+        }
     });
 }

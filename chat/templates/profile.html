@@ -17,10 +17,11 @@
             {% csrf_token %}
 
             <div class="image-section">
-
-                <img src="{{ request.user.profile.image.url }}"
-                     class="profile-preview">
-
+                {% if request.user.profile.image and request.user.profile.image.name != 'profile/default.png' and request.user.profile.image.name != 'default.png' %}
+                    <img src="{{ request.user.profile.image.url }}" class="profile-preview">
+                {% else %}
+                    <div class="avatar-fallback-large">{{ request.user.username|slice:":1"|upper }}</div>
+                {% endif %}
             </div>
             <label class="upload-label">Upload Profile Image</label>
             <input type="file"
