@@ -951,6 +951,21 @@ body::after {
 }
 
 @media(max-width: 600px){
+    html, body {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    .main-container,
+    .chat-container-full {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden !important;
+    }
+
     /* On mobile, show the sidebar user list at 100% width on the homepage */
     .main-container .sidebar {
         display: flex;
@@ -1017,11 +1032,11 @@ body::after {
     }
     
     .profile-card {
-        width: 100%;
-        max-width: 400px;
-        padding: 30px 20px;
-        border-radius: 20px;
-        margin: 15px;
+        width: calc(100% - 30px) !important;
+        max-width: 400px !important;
+        padding: 30px 20px !important;
+        border-radius: 20px !important;
+        margin: 15px !important;
     }
 
     /* On mobile/touch screens, let the delete button be hidden by default and show on tap/hold */
