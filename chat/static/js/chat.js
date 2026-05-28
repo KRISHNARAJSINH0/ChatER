@@ -101,7 +101,9 @@ if (form && input) {
         if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
             chatSocket.send(JSON.stringify({
                 'message': messageText,
-                'sender': senderUsername
+                'sender': senderUsername,
+                'receiver': receiverUsername,
+                'sender_id': senderId
             }));
         } else {
             console.warn("WebSocket is not connected. Message sent via fallback.");

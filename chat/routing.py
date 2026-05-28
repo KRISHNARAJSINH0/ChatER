@@ -12,5 +12,10 @@ websocket_urlpatterns = [
         consumers.ChatConsumer.as_asgi()
 
     ),
+    
+    path(
+        'ws/notifications/',
+        consumers.NotificationConsumer.as_asgi()
+    ),
 
 ]
