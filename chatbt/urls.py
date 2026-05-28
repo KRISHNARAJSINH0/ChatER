@@ -30,6 +30,7 @@ urlpatterns = [
     path('delete-message/<int:id>/',views.delete_message),
     path('typing-status/',views.typing_status),
     path('get-messages/<int:id>/',views.get_messages),
+    path('search-users/', views.search_users),
 
 ]
 urlpatterns += static(

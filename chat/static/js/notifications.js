@@ -120,7 +120,7 @@ function connectNotificationSocket() {
         showNotificationToast(sender, message, senderId);
 
         // 3. Update homepage user card list dynamically in real time
-        updateHomeUserCard(sender, message);
+        updateHomeUserCard(sender, message, senderId);
     };
 
     notificationSocket.onclose = function() {
@@ -208,46 +208,77 @@ function showNotificationToast(senderName, messageText, senderId) {
 }
 
 // UPDATE USER CARD LISTS ON HOME
-function updateHomeUserCard(senderName, messageText) {
+function updateHomeUserCard(senderName, messageText, senderId) {
     const cards = document.querySelectorAll('.user-card');
-    if (cards.length === 0) return;
+    const listParent = document.getElementById('userList');
+    
+    let cardExists = false;
+    if (cards.length > 0) {
+        cards.forEach(card => {
+            const usernameH3 = card.querySelector('.username');
+            if (!usernameH3) return;
 
-    cards.forEach(card => {
-        const usernameH3 = card.querySelector('.username');
-        if (!usernameH3) return;
+            const cardUsername = usernameH3.textContent.trim();
+            if (cardUsername === senderName) {
+                cardExists = true;
+                
+                // Update last message preview
+                const textP = card.querySelector('.chat-info p');
+                if (textP) {
+                    textP.innerHTML = messageText.length > 25 ? messageText.substring(0, 22) + '...' : messageText;
+                    textP.style.color = '#a5b4fc'; // lavender highlight
+                    textP.style.fontWeight = '500';
+                }
 
-        const cardUsername = usernameH3.textContent.trim();
-        if (cardUsername === senderName) {
-            // Update last message preview
-            const textP = card.querySelector('.chat-info p');
-            if (textP) {
-                textP.innerHTML = messageText.length > 25 ? messageText.substring(0, 22) + '...' : messageText;
-                textP.style.color = '#a5b4fc'; // lavender highlight
-                textP.style.fontWeight = '500';
+                // Create/Update glowing cyan NEW badge
+                let badge = card.querySelector('.msg-unread-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'msg-unread-badge';
+                    badge.style.background = '#22d3ee';
+                    badge.style.color = '#06070d';
+                    badge.style.fontSize = '9px';
+                    badge.style.fontWeight = '700';
+                    badge.style.padding = '2px 6px';
+                    badge.style.borderRadius = '8px';
+                    badge.style.marginLeft = '8px';
+                    badge.style.boxShadow = '0 0 10px rgba(34, 211, 238, 0.6)';
+                    badge.textContent = 'NEW';
+                    card.querySelector('.chat-info').appendChild(badge);
+                }
+
+                // Shuffle this active user card to the absolute top of the homepage chat list!
+                const listParent = card.parentNode;
+                if (listParent) {
+                    listParent.insertBefore(card, listParent.firstChild);
+                }
             }
+        });
+    }
 
-            // Create/Update glowing cyan NEW badge
-            let badge = card.querySelector('.msg-unread-badge');
-            if (!badge) {
-                badge = document.createElement('span');
-                badge.className = 'msg-unread-badge';
-                badge.style.background = '#22d3ee';
-                badge.style.color = '#06070d';
-                badge.style.fontSize = '9px';
-                badge.style.fontWeight = '700';
-                badge.style.padding = '2px 6px';
-                badge.style.borderRadius = '8px';
-                badge.style.marginLeft = '8px';
-                badge.style.boxShadow = '0 0 10px rgba(34, 211, 238, 0.6)';
-                badge.textContent = 'NEW';
-                card.querySelector('.chat-info').appendChild(badge);
-            }
-
-            // Shuffle this active user card to the absolute top of the homepage chat list!
-            const listParent = card.parentNode;
-            if (listParent) {
-                listParent.insertBefore(card, listParent.firstChild);
-            }
+    // Dynamic generation: If card doesn't exist yet, construct and slide it into the list parent!
+    if (!cardExists && listParent && senderId) {
+        if (listParent.innerHTML.includes('No users found')) {
+            listParent.innerHTML = '';
         }
-    });
+
+        const newCard = document.createElement('a');
+        newCard.href = `/chat/${senderId}/`;
+        newCard.className = 'user-card';
+
+        const firstLetter = senderName.charAt(0).toUpperCase();
+
+        newCard.innerHTML = `
+            <div class="avatar-fallback">${firstLetter}</div>
+            <div class="chat-info">
+                <h3 class="username">${senderName}</h3>
+                <p style="font-size: 12px; color: #a5b4fc; font-weight: 500;">
+                    ${messageText.length > 25 ? messageText.substring(0, 22) + '...' : messageText}
+                </p>
+                <span class="msg-unread-badge" style="background: #22d3ee; color: #06070d; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 8px; margin-left: 8px; box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);">NEW</span>
+            </div>
+        `;
+
+        listParent.insertBefore(newCard, listParent.firstChild);
+    }
 }

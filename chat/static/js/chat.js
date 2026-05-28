@@ -130,7 +130,10 @@ if (form && input) {
             }
         }).catch(err => console.error("Database sync failed: ", err));
 
-        // 3. Reset input field instantly
+        // 3. Update our own local sidebar card instantly and slide it to the top!
+        updateLocalSidebar(receiverUsername, messageText, receiverId);
+
+        // 4. Reset input field instantly
         input.value = '';
     });
 }
@@ -176,4 +179,62 @@ function updateDoubleTicks() {
             el.innerHTML = el.innerHTML.replace(/✓/g, '<span style="color: #22d3ee; margin-left: 2px;">✓✓</span>');
         }
     });
+}
+
+function updateLocalSidebar(receiverName, messageText, receiverId) {
+    const cards = document.querySelectorAll('.sidebar .user-card');
+    const listParent = document.getElementById('userList');
+    
+    let cardExists = false;
+    if (cards.length > 0) {
+        cards.forEach(card => {
+            const usernameH3 = card.querySelector('.username');
+            if (usernameH3 && usernameH3.textContent.trim() === receiverName) {
+                cardExists = true;
+                
+                // Update last message preview
+                const textP = card.querySelector('.chat-info p');
+                if (textP) {
+                    textP.innerHTML = messageText.length > 25 ? messageText.substring(0, 22) + '...' : messageText;
+                    textP.style.color = 'rgba(248, 250, 252, 0.4)';
+                    textP.style.fontWeight = '400';
+                }
+
+                // Remove unread badge since we are the sender
+                const badge = card.querySelector('.msg-unread-badge');
+                if (badge) badge.remove();
+
+                // Shuffle this card to the top
+                const parent = card.parentNode;
+                if (parent) {
+                    parent.insertBefore(card, parent.firstChild);
+                }
+            }
+        });
+    }
+
+    // Dynamic generation for sender side if no card exists yet
+    if (!cardExists && listParent && receiverId) {
+        if (listParent.innerHTML.includes('No users found')) {
+            listParent.innerHTML = '';
+        }
+
+        const newCard = document.createElement('a');
+        newCard.href = `/chat/${receiverId}/`;
+        newCard.className = 'user-card';
+
+        const firstLetter = receiverName.charAt(0).toUpperCase();
+
+        newCard.innerHTML = `
+            <div class="avatar-fallback">${firstLetter}</div>
+            <div class="chat-info">
+                <h3 class="username">${receiverName}</h3>
+                <p style="font-size: 11px; color: rgba(248, 250, 252, 0.4); font-weight: 400;">
+                    ${messageText.length > 25 ? messageText.substring(0, 22) + '...' : messageText}
+                </p>
+            </div>
+        `;
+
+        listParent.insertBefore(newCard, listParent.firstChild);
+    }
 }

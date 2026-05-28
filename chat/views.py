@@ -106,31 +106,21 @@ def home(request):
             '-timestamp'
         ).first()
 
-        user_data.append({
+        # Only display in sidebar if a conversation already exists!
+        if last_message:
+            user_data.append({
 
-            'user': user,
+                'user': user,
 
-            'last_message': last_message
+                'last_message': last_message
 
-        })
+            })
 
     user_data = sorted(
-
-    user_data,
-
-    key=lambda x:
-    x['last_message'].timestamp
-    if x['last_message']
-    else timezone.datetime(
-        1970,
-        1,
-        1,
-        tzinfo=timezone.get_current_timezone()
-    ),
-
-    reverse=True
-
-)
+        user_data,
+        key=lambda x: x['last_message'].timestamp,
+        reverse=True
+    )
 
     return render(request, 'home.html', {
 
@@ -313,3 +303,26 @@ def get_messages(request, id):
         'html': html
 
     })
+
+
+@login_required
+def search_users(request):
+    query = request.GET.get('q', '').strip()
+    if not query:
+        return JsonResponse({'users': []})
+    
+    matching_users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)[:10]
+    
+    results = []
+    for u in matching_users:
+        has_custom_image = u.profile.image and u.profile.image.name != 'profile/default.png' and u.profile.image.name != 'default.png'
+        img_url = u.profile.image.url if has_custom_image else None
+        
+        results.append({
+            'id': u.id,
+            'username': u.username,
+            'img_url': img_url,
+            'first_letter': u.username[0].upper() if u.username else ''
+        })
+        
+    return JsonResponse({'users': results})
