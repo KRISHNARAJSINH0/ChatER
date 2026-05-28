@@ -10,7 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
+import dj_database_url
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load local environment variables if .env file exists
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,17 +26,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4(h1nu=e8awkeu9@3_w_=#j=_l35n)td(623=aosg6^g0o7u!f'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-4(h1nu=e8awkeu9@3_w_=#j=_l35n)td(623=aosg6^g0o7u!f')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1 localhost 0.0.0.0').split()
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,6 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -71,16 +82,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'chatbt.wsgi.application'
 ASGI_APPLICATION = 'chatbt.asgi.application'
 
-CHANNEL_LAYERS = {
-
-    "default": {
-
-        "BACKEND":
-        "channels.layers.InMemoryChannelLayer"
-
+# Dynamic Channel Layer configuration: support Redis in production if REDIS_URL is provided,
+# otherwise fall back to InMemoryChannelLayer (which works beautifully on single-container hosting)
+REDIS_URL = os.environ.get('REDIS_URL')
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [REDIS_URL],
+            },
+        },
     }
-
-}
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
+        }
+    }
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -91,6 +110,15 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Use PostgreSQL in production if DATABASE_URL is set
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=True
+    )
 
 
 # Password validation
@@ -129,6 +157,17 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Directory where collectstatic will compile static files for production
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Serve static files efficiently with gzip and cache-control headers in production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# CSRF trusted origins for secure cookie submissions in production
+CSRF_TRUSTED_ORIGINS = []
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
