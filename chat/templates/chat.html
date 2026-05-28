@@ -6,6 +6,8 @@
     <!-- HEADER -->
     <div class="chat-header">
       <a href="/home/" class="back-button">← Back</a>
+      
+      <img src="{{ receiver.profile.image.url }}" class="profile-image" alt="{{ receiver.username }}">
 
       <div>
         <h2>{{ receiver.username }}</h2>
@@ -137,13 +139,18 @@
     </div>
 
     <!-- INPUT -->
-    <form method="POST" class="message-form">
+    <form method="POST" class="message-form" id="chat-form">
       {% csrf_token %}
 
-      <input type="text" name="message" id="message-input" placeholder="Type message..." required />
+      <input type="text" name="message" id="message-input" placeholder="Type message..." required autocomplete="off" />
 
       <button type="submit">Send</button>
     </form>
   </div>
+  <script>
+      const senderId = "{{ request.user.id }}";
+      const receiverId = "{{ receiver.id }}";
+      const senderUsername = "{{ request.user.username }}";
+  </script>
   <script src="{% static 'js/chat.js' %}"></script>
 {% endblock %}
