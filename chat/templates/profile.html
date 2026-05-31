@@ -18,7 +18,7 @@
 
             <div class="image-section">
                 {% if request.user.profile.image and request.user.profile.image.name != 'profile/default.png' and request.user.profile.image.name != 'default.png' %}
-                    <img src="{{ request.user.profile.image.url }}" class="profile-preview">
+                    <img src="{{ request.user.profile.image_url }}" class="profile-preview">
                 {% else %}
                     <div class="avatar-fallback-large">{{ request.user.username|slice:":1"|upper }}</div>
                 {% endif %}
@@ -59,5 +59,34 @@
     </div>
 
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const fileInput = document.querySelector('.file-input');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let preview = document.querySelector('.profile-preview');
+                    const container = document.querySelector('.image-section');
+                    if (!preview) {
+                        const fallback = document.querySelector('.avatar-fallback-large');
+                        if (fallback) {
+                            fallback.remove();
+                        }
+                        preview = document.createElement('img');
+                        preview.className = 'profile-preview';
+                        container.appendChild(preview);
+                    }
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
 
 {% endblock %}

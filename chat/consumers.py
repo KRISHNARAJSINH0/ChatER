@@ -1,6 +1,7 @@
 import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -100,7 +101,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender': event['sender']
         }))
 
-    from channels.db import database_sync_to_async
     @database_sync_to_async
     def mark_messages_seen(self, sender_username, receiver_username):
         from django.contrib.auth.models import User

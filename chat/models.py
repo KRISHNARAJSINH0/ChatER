@@ -52,6 +52,15 @@ class Profile(models.Model):
     default=False
     )
 
+    @property
+    def image_url(self):
+        if self.image:
+            try:
+                return f"{self.image.url}?v={int(self.last_seen.timestamp())}"
+            except Exception:
+                return self.image.url
+        return ""
+
     def __str__(self):
 
         return self.user.username

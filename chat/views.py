@@ -1,5 +1,3 @@
-import profile
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
@@ -338,7 +336,7 @@ def search_users(request):
             u = item['user']
             last_msg = item['last_message']
             has_custom_image = u.profile.image and u.profile.image.name != 'profile/default.png' and u.profile.image.name != 'default.png'
-            img_url = u.profile.image.url if has_custom_image else None
+            img_url = u.profile.image_url if has_custom_image else None
             
             # Truncate preview
             preview = last_msg.message
@@ -363,7 +361,7 @@ def search_users(request):
     results = []
     for u in matching_users:
         has_custom_image = u.profile.image and u.profile.image.name != 'profile/default.png' and u.profile.image.name != 'default.png'
-        img_url = u.profile.image.url if has_custom_image else None
+        img_url = u.profile.image_url if has_custom_image else None
         
         results.append({
             'id': u.id,
