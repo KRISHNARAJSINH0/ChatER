@@ -51,7 +51,7 @@
 
       {% for message in messages %}
         {% if message.sender == request.user %}
-          <div class="message-right">
+          <div class="message-right" data-message-id="{{ message.id }}">
             <div class="message-bubble sender">
               {% if message.is_deleted %}
 
@@ -99,7 +99,7 @@
             </div>
           </div>
         {% else %}
-          <div class="message-left">
+          <div class="message-left" data-message-id="{{ message.id }}">
             <div class="message-bubble receiver">
               {% if message.is_deleted %}
 

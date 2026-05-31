@@ -161,6 +161,27 @@ def chat_page(request, id):
 
             )
 
+            # Real-time WebSocket Message Broadcast with Database ID
+            try:
+                from channels.layers import get_channel_layer
+                from asgiref.sync import async_to_sync
+
+                ids = sorted([request.user.id, receiver.id])
+                room_group_name = f"chat_room_{ids[0]}_{ids[1]}"
+                channel_layer = get_channel_layer()
+
+                async_to_sync(channel_layer.group_send)(
+                    room_group_name,
+                    {
+                        'type': 'chat_message',
+                        'message': msg.message,
+                        'sender': msg.sender.username,
+                        'message_id': msg.id
+                    }
+                )
+            except Exception as e:
+                print("Error broadcasting message: ", e)
+
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' and msg:
             return JsonResponse({
                 'status': 'success',
@@ -257,6 +278,28 @@ def delete_message(request, id):
         message.is_deleted = True
 
         message.save()
+
+        # Real-time WebSocket Deletion Broadcast
+        try:
+            from channels.layers import get_channel_layer
+            from asgiref.sync import async_to_sync
+
+            ids = sorted([message.sender.id, message.receiver.id])
+            room_group_name = f"chat_room_{ids[0]}_{ids[1]}"
+            channel_layer = get_channel_layer()
+
+            async_to_sync(channel_layer.group_send)(
+                room_group_name,
+                {
+                    'type': 'message_deleted',
+                    'message_id': message.id
+                }
+            )
+        except Exception as e:
+            print("Error broadcasting message deletion: ", e)
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'success'})
 
     return redirect(f'/chat/{message.receiver.id}/')
 

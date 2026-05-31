@@ -31,10 +31,23 @@ function connectWebSocket() {
             return;
         }
 
+        if (data.type === 'message_deleted') {
+            const messageId = data.message_id;
+            const msgWrapper = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (msgWrapper) {
+                const bubble = msgWrapper.querySelector('.message-bubble');
+                if (bubble) {
+                    bubble.innerHTML = '<i>Message deleted</i>';
+                }
+            }
+            return;
+        }
+
         const messageText = data.message;
         const senderName = data.sender;
+        const messageId = data.message_id;
         
-        appendMessageBubble(messageText, senderName);
+        appendMessageBubble(messageText, senderName, messageId);
 
         if (senderName !== senderUsername) {
             sendSeenReceipt();
@@ -58,7 +71,7 @@ function connectWebSocket() {
 connectWebSocket();
 
 // DYNAMICALLY APPEND NEW MESSAGE BUBBLE
-function appendMessageBubble(messageText, senderName) {
+function appendMessageBubble(messageText, senderName, messageId) {
     if (!container) return;
 
     // Remove the empty placeholder if it exists
@@ -70,6 +83,9 @@ function appendMessageBubble(messageText, senderName) {
     const isMe = (senderName === senderUsername);
     const messageWrapper = document.createElement('div');
     messageWrapper.className = isMe ? 'message-right' : 'message-left';
+    if (messageId) {
+        messageWrapper.setAttribute('data-message-id', messageId);
+    }
 
     const bubbleClass = isMe ? 'message-bubble sender' : 'message-bubble receiver';
 
@@ -85,7 +101,7 @@ function appendMessageBubble(messageText, senderName) {
     // Readability for ticks
     const ticks = isMe ? '<span style="color: #22d3ee; margin-left: 4px; font-weight: bold;">✓</span>' : '';
 
-    const deleteTag = isMe ? `<a href="#" class="delete-btn temp-delete-btn">Delete</a>` : '';
+    const deleteTag = isMe ? `<a href="/delete-message/${messageId || '#'}/" class="delete-btn${!messageId ? ' temp-delete-btn' : ''}">Delete</a>` : '';
 
     messageWrapper.innerHTML = `
         <div class="${bubbleClass}">
@@ -118,19 +134,8 @@ if (form && input) {
         const messageText = input.value.trim();
         if (messageText === '') return;
 
-        // 1. Send instantly over WebSocket for true real-time broadcast
-        if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-            chatSocket.send(JSON.stringify({
-                'message': messageText,
-                'sender': senderUsername,
-                'receiver': receiverUsername,
-                'sender_id': senderId
-            }));
-        } else {
-            console.warn("WebSocket is not connected. Message sent via fallback.");
-        }
-
-        // 2. Synchronize with database in the background (silent HTTP POST)
+        // Synchronize with database in the background (silent HTTP POST)
+        // This will save the message and broadcast it via Django Channels, including the true message ID!
         const formData = new FormData(form);
         fetch(window.location.pathname, {
             method: 'POST',
@@ -139,20 +144,9 @@ if (form && input) {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success' && data.message_id) {
-                // Find any temporary delete buttons and set their true href!
-                const tempBtns = document.querySelectorAll('.temp-delete-btn');
-                tempBtns.forEach(btn => {
-                    btn.href = `/delete-message/${data.message_id}/`;
-                    btn.classList.remove('temp-delete-btn');
-                });
-            }
-        })
         .catch(err => console.error("Database sync failed: ", err));
 
-        // 3. Update our own local sidebar card instantly and slide it to the top!
+        // 2. Update our own local sidebar card instantly and slide it to the top!
         updateLocalSidebar(receiverUsername, messageText, receiverId);
 
         // 4. Reset input field instantly
@@ -266,6 +260,31 @@ document.addEventListener("DOMContentLoaded", function() {
     const dotsBtn = document.getElementById("settingsDotsBtn");
     const dropdownMenu = document.getElementById("settingsDropdownMenu");
     const clearChatBtn = document.getElementById("clearChatBtn");
+
+    // INTERCEPT MESSAGE DELETIONS WITH ULTRA-FAST SILENT AJAX
+    document.addEventListener('click', function(e) {
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (deleteBtn) {
+            e.preventDefault();
+            const href = deleteBtn.getAttribute('href');
+            if (href === '#' || href === '') return;
+
+            if (confirm("Are you sure you want to delete this message for everyone?")) {
+                fetch(href, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        console.log("Delete notification sent successfully via WebSocket.");
+                    }
+                })
+                .catch(err => console.error("Error deleting message: ", err));
+            }
+        }
+    });
 
     if (dotsBtn && dropdownMenu) {
         dotsBtn.addEventListener("click", function(e) {
