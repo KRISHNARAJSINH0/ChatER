@@ -639,11 +639,11 @@ body::after {
 /* INTERACTIVE TAG DELETE BUTTON */
 .delete-btn {
     position: absolute;
-    top: -24px;
+    top: -22px;
     right: 8px;
     background: rgba(239, 68, 68, 0.95);
     color: #ffffff !important;
-    padding: 3px 10px;
+    padding: 3.5px 11px;
     border-radius: 8px;
     font-size: 10px;
     font-weight: 600;
@@ -651,26 +651,20 @@ body::after {
     letter-spacing: 0.5px;
     text-decoration: none !important;
     opacity: 0;
+    pointer-events: none;
     transform: translateY(5px);
-    visibility: hidden; /* Use visibility instead of pointer-events to support animatable delays */
     box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
     z-index: 10;
-    
-    /* CSS Delay Hack: keeps the button visible and clickable for 4 seconds after hover/tap ends so user can tap it */
-    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s ease;
-    transition-delay: 4s; 
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Hover over bubble (desktop), Tap & Hold / Active click on bubble (mobile/desktop), show-delete class, or Focus */
+/* Hover over bubble (desktop), show-delete class (mobile touch), or Focus */
 .message-bubble:hover .delete-btn,
-.message-bubble:active .delete-btn,
 .message-bubble.show-delete .delete-btn,
-.delete-btn:focus,
-.delete-btn:hover {
+.delete-btn:focus {
     opacity: 1 !important;
+    pointer-events: auto !important;
     transform: translateY(0) !important;
-    visibility: visible !important; /* Immediately interactive */
-    transition-delay: 0s !important; /* Show instantly upon interaction */
 }
 
 .delete-btn:hover {
@@ -1059,6 +1053,11 @@ body::after {
         font-size: 11.5px !important;
         border-radius: 10px !important;
     }
+
+    .chat-settings-container {
+        top: 14px !important;
+        right: 14px !important;
+    }
     
     .profile-card {
         width: calc(100% - 30px) !important;
@@ -1071,18 +1070,16 @@ body::after {
     /* On mobile/touch screens, let the delete button be hidden by default and show on tap/hold */
     .delete-btn {
         opacity: 0 !important;
+        pointer-events: none !important;
         transform: translateY(5px) !important;
-        visibility: hidden !important;
-        top: -22px !important;
+        top: -20px !important;
         right: 6px !important;
-        transition-delay: 4s; 
     }
 
     .message-bubble.show-delete .delete-btn {
         opacity: 1 !important;
+        pointer-events: auto !important;
         transform: translateY(0) !important;
-        visibility: visible !important;
-        transition-delay: 0s !important;
     }
     
     /* Add vertical margin between bubbles on mobile to fit the floating delete tags comfortably */
@@ -1094,9 +1091,9 @@ body::after {
 
 /* THREE DOTS SETTINGS DROPDOWN IN CHAT */
 .chat-settings-container {
-    margin-left: auto;
-    position: relative;
-    display: inline-block;
+    position: absolute;
+    top: 14px;
+    right: 20px;
     z-index: 100;
 }
 

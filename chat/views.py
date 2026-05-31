@@ -147,10 +147,11 @@ def chat_page(request, id):
     if request.method == "POST":
 
         message = request.POST.get('message')
+        msg = None
 
         if message:
 
-            Message.objects.create(
+            msg = Message.objects.create(
 
                 sender=request.user,
 
@@ -159,6 +160,12 @@ def chat_page(request, id):
                 message=message
 
             )
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' and msg:
+            return JsonResponse({
+                'status': 'success',
+                'message_id': msg.id
+            })
 
         return redirect(f'/chat/{id}/')
 

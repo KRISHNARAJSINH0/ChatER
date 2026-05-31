@@ -85,12 +85,15 @@ function appendMessageBubble(messageText, senderName) {
     // Readability for ticks
     const ticks = isMe ? '<span style="color: #22d3ee; margin-left: 4px; font-weight: bold;">✓</span>' : '';
 
+    const deleteTag = isMe ? `<a href="#" class="delete-btn temp-delete-btn">Delete</a>` : '';
+
     messageWrapper.innerHTML = `
         <div class="${bubbleClass}">
             ${messageText}
             <div class="message-time">
                 ${timeString} ${ticks}
             </div>
+            ${deleteTag}
         </div>
     `;
 
@@ -135,7 +138,19 @@ if (form && input) {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
-        }).catch(err => console.error("Database sync failed: ", err));
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success' && data.message_id) {
+                // Find any temporary delete buttons and set their true href!
+                const tempBtns = document.querySelectorAll('.temp-delete-btn');
+                tempBtns.forEach(btn => {
+                    btn.href = `/delete-message/${data.message_id}/`;
+                    btn.classList.remove('temp-delete-btn');
+                });
+            }
+        })
+        .catch(err => console.error("Database sync failed: ", err));
 
         // 3. Update our own local sidebar card instantly and slide it to the top!
         updateLocalSidebar(receiverUsername, messageText, receiverId);
@@ -297,8 +312,15 @@ document.addEventListener("DOMContentLoaded", function() {
 // PREMIUM LONG PRESS TRIGGER FOR MOBILE TOUCH DEVICES
 function initMobileLongPress(bubble) {
     let pressTimer;
+    let startX = 0;
+    let startY = 0;
 
     const startPress = function(e) {
+        if (e.touches && e.touches[0]) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }
+        
         clearTimeout(pressTimer);
         pressTimer = setTimeout(() => {
             // Remove active long-press on all other bubbles first
@@ -311,19 +333,30 @@ function initMobileLongPress(bubble) {
 
             // Trigger micro-vibration for a native-like feedback
             if (navigator.vibrate) {
-                navigator.vibrate(45);
+                navigator.vibrate(50);
             }
-        }, 600); // 600ms hold represents a standard intentional long press
+        }, 500); // 500ms hold is responsive and intentional
     };
 
     const cancelPress = function() {
         clearTimeout(pressTimer);
     };
 
+    const movePress = function(e) {
+        if (e.touches && e.touches[0]) {
+            const diffX = Math.abs(e.touches[0].clientX - startX);
+            const diffY = Math.abs(e.touches[0].clientY - startY);
+            // Cancel hold only if they scroll/move finger more than 10px (anti-finger-wobble tolerance)
+            if (diffX > 10 || diffY > 10) {
+                clearTimeout(pressTimer);
+            }
+        }
+    };
+
     // Touch Event hooks
     bubble.addEventListener('touchstart', startPress, { passive: true });
     bubble.addEventListener('touchend', cancelPress);
-    bubble.addEventListener('touchmove', cancelPress);
+    bubble.addEventListener('touchmove', movePress, { passive: true });
     bubble.addEventListener('touchcancel', cancelPress);
 }
 
