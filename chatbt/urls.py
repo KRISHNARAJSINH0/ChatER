@@ -31,6 +31,7 @@ urlpatterns = [
     path('typing-status/',views.typing_status),
     path('get-messages/<int:id>/',views.get_messages),
     path('search-users/', views.search_users),
+    path('clear-chat/<int:id>/', views.clear_chat),
 
 ]
 urlpatterns += static(

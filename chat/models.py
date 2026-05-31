@@ -26,6 +26,14 @@ class Message(models.Model):
     default=False
     )
 
+    deleted_by_sender = models.BooleanField(
+        default=False
+    )
+
+    deleted_by_receiver = models.BooleanField(
+        default=False
+    )
+
     message = models.TextField()
 
     timestamp = models.DateTimeField(auto_now_add=True)

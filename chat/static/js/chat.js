@@ -95,6 +95,13 @@ function appendMessageBubble(messageText, senderName) {
     `;
 
     container.appendChild(messageWrapper);
+    
+    // Wire up long-press touch controls on the new bubble immediately
+    const newBubble = messageWrapper.querySelector('.message-bubble');
+    if (newBubble && typeof initMobileLongPress === 'function') {
+        initMobileLongPress(newBubble);
+    }
+    
     scrollToBottom();
 }
 
@@ -238,3 +245,93 @@ function updateLocalSidebar(receiverName, messageText, receiverId) {
         listParent.insertBefore(newCard, listParent.firstChild);
     }
 }
+
+// THREE-DOTS SETTINGS DROPDOWN & CLEAR CHAT
+document.addEventListener("DOMContentLoaded", function() {
+    const dotsBtn = document.getElementById("settingsDotsBtn");
+    const dropdownMenu = document.getElementById("settingsDropdownMenu");
+    const clearChatBtn = document.getElementById("clearChatBtn");
+
+    if (dotsBtn && dropdownMenu) {
+        dotsBtn.addEventListener("click", function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle("show");
+        });
+
+        document.addEventListener("click", function(e) {
+            if (!dotsBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove("show");
+            }
+        });
+    }
+
+    if (clearChatBtn && typeof receiverId !== 'undefined') {
+        clearChatBtn.addEventListener("click", function() {
+            if (confirm("Are you sure you want to clear this chat? This will clear the chat history for you privately.")) {
+                fetch(`/clear-chat/${receiverId}/`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Instantly clear messages list in the UI without a full reload!
+                        if (container) {
+                            container.innerHTML = '<div class="empty-chat">Start chatting 🚀</div>';
+                        }
+                        dropdownMenu.classList.remove("show");
+                    }
+                })
+                .catch(err => console.error("Error clearing chat: ", err));
+            }
+        });
+    }
+
+    // Initialize long-press gesture on all existing messages
+    const bubbles = document.querySelectorAll('.message-bubble');
+    bubbles.forEach(bubble => initMobileLongPress(bubble));
+});
+
+// PREMIUM LONG PRESS TRIGGER FOR MOBILE TOUCH DEVICES
+function initMobileLongPress(bubble) {
+    let pressTimer;
+
+    const startPress = function(e) {
+        clearTimeout(pressTimer);
+        pressTimer = setTimeout(() => {
+            // Remove active long-press on all other bubbles first
+            document.querySelectorAll('.message-bubble.show-delete').forEach(b => {
+                if (b !== bubble) b.classList.remove('show-delete');
+            });
+
+            // Toggle show-delete class on this bubble
+            bubble.classList.add('show-delete');
+
+            // Trigger micro-vibration for a native-like feedback
+            if (navigator.vibrate) {
+                navigator.vibrate(45);
+            }
+        }, 600); // 600ms hold represents a standard intentional long press
+    };
+
+    const cancelPress = function() {
+        clearTimeout(pressTimer);
+    };
+
+    // Touch Event hooks
+    bubble.addEventListener('touchstart', startPress, { passive: true });
+    bubble.addEventListener('touchend', cancelPress);
+    bubble.addEventListener('touchmove', cancelPress);
+    bubble.addEventListener('touchcancel', cancelPress);
+}
+
+// Global click/touch outside to close any active mobile delete menus
+document.addEventListener('touchstart', function(e) {
+    if (!e.target.closest('.message-bubble')) {
+        document.querySelectorAll('.message-bubble.show-delete').forEach(b => {
+            b.classList.remove('show-delete');
+        });
+    }
+}, { passive: true });

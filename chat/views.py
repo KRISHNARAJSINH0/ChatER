@@ -94,10 +94,12 @@ def home(request):
 
         last_message = Message.objects.filter(
             sender=request.user,
-            receiver=user
+            receiver=user,
+            deleted_by_sender=False
         ) | Message.objects.filter(
             sender=user,
-            receiver=request.user
+            receiver=request.user,
+            deleted_by_receiver=False
         )
 
         last_message = last_message.order_by(
@@ -163,10 +165,12 @@ def chat_page(request, id):
     # SHOW MESSAGES
     messages = Message.objects.filter(
         sender=request.user,
-        receiver=receiver
+        receiver=receiver,
+        deleted_by_sender=False
     ) | Message.objects.filter(
         sender=receiver,
-        receiver=request.user
+        receiver=request.user,
+        deleted_by_receiver=False
     )
 
     messages = messages.order_by('timestamp')
@@ -250,6 +254,23 @@ def delete_message(request, id):
     return redirect(f'/chat/{message.receiver.id}/')
 
 
+@login_required
+def clear_chat(request, id):
+    receiver = get_object_or_404(User, id=id)
+    
+    Message.objects.filter(
+        sender=request.user,
+        receiver=receiver
+    ).update(deleted_by_sender=True)
+
+    Message.objects.filter(
+        sender=receiver,
+        receiver=request.user
+    ).update(deleted_by_receiver=True)
+
+    return JsonResponse({'status': 'success'})
+
+
 typing_users = {}
 def typing_status(request):
 
@@ -274,10 +295,12 @@ def get_messages(request, id):
 
     messages = Message.objects.filter(
         sender=request.user,
-        receiver=receiver
+        receiver=receiver,
+        deleted_by_sender=False
     ) | Message.objects.filter(
         sender=receiver,
-        receiver=request.user
+        receiver=request.user,
+        deleted_by_receiver=False
     )
 
     messages = messages.order_by('timestamp')
@@ -313,9 +336,9 @@ def search_users(request):
         active_users = []
         for u in users:
             last_message = Message.objects.filter(
-                sender=request.user, receiver=u
+                sender=request.user, receiver=u, deleted_by_sender=False
             ) | Message.objects.filter(
-                sender=u, receiver=request.user
+                sender=u, receiver=request.user, deleted_by_receiver=False
             )
             last_message = last_message.order_by('-timestamp').first()
             if last_message:
