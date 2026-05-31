@@ -93,7 +93,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             'sender': event['sender'],
 
-            'message_id': event['message_id']
+            'message_id': event.get('message_id')
 
         }))
 

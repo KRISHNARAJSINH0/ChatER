@@ -182,6 +182,25 @@ def chat_page(request, id):
             except Exception as e:
                 print("Error broadcasting message: ", e)
 
+            # Personal Notification Broadcast (Updates sidebar, unread badge, and glass popups on home/other pages)
+            if receiver.username != request.user.username:
+                try:
+                    import datetime
+                    now_str = datetime.datetime.now().strftime("%I:%M %p")
+                    receiver_group = f"notification_{receiver.username}"
+                    async_to_sync(channel_layer.group_send)(
+                        receiver_group,
+                        {
+                            'type': 'user_notification',
+                            'message': msg.message,
+                            'sender': request.user.username,
+                            'sender_id': request.user.id,
+                            'timestamp': now_str
+                        }
+                    )
+                except Exception as e:
+                    print("Error broadcasting personal notification: ", e)
+
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' and msg:
             return JsonResponse({
                 'status': 'success',
